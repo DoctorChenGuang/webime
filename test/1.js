@@ -1,6 +1,6 @@
 const fs = require('fs');
 
-fs.readFile('./src/word.txt', (err, data) => {
+fs.readFile('./src/first-letter-word.txt', (err, data) => {
   if (err)
     throw err;
 
