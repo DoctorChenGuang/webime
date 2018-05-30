@@ -1,12 +1,12 @@
 const IME = {
   loaded: false,
-  singleKey: [],
-  ZCSH: [],
-  firstLetterWords: new Map(),
-  word: new Map(),
-  words: new Map(),
-  vowels: [],
-  initial: []
+  // singleKey: [],
+  // ZCSH: [],
+  // firstLetterWords: new Map(),
+  // word: new Map(),
+  // words: new Map(),
+  // vowels: [],
+  // initial: []
 };
 
 (function () {
@@ -51,12 +51,58 @@ const IME = {
       return;
     }
 
+    let invalidConvertResult = { syllables: input, words: input };
     let analyzedResult = analyse(input);
     if (!analyzedResult.result) {
-      return input;
+      return invalidConvertResult;
     }
 
     console.log('analyzedResult', analyzedResult);
+
+    let result = queryFirstLetterWords(analyzedResult.syllables);
+    let [findWord, fullSyllableWords] = translate(analyzedResult.syllables);
+    result = result.concat(fullSyllableWords);
+
+    if (!findWord) {
+      result = result.concat(queryWord(analyzedResult.syllables[0]));
+    }
+
+    if (result.length < 1) {
+      return invalidConvertResult;
+    }
+
+    console.log('result', result);
+    return result;
+  }
+
+  function queryWord(syllable) {
+    if (IME.vowels.includes(syllable))
+      return result;
+
+    let result;
+    if (syllable.length === 1) {
+      let singleKeyIndex = syllable.charCodeAt(0) - 97;
+      result = IME.singleKey[singleKeyIndex].split('');
+    } else {
+      let zcshIndex = ['zh', 'ch', 'sh'].indexOf(syllable);
+      result = IME.ZCSH[zcshIndex].split('');
+    }
+
+    for (let i = 0; i < IME.vowels.length; i++) {
+      let vowel = IME.vowels[i];
+      let fullSyllable = syllable + vowel;
+
+      if (IME.word.has(fullSyllable)) {
+        let words = IME.word.get(fullSyllable).split('');
+        words.forEach(word => {
+          if (!result.includes(word)) {
+            result.push(word);
+          }
+        });
+      }
+    }
+
+    return { syllables: syllable, words: result };
   }
 
   function analyse(input) {
@@ -68,7 +114,7 @@ const IME = {
       let code = input.charCodeAt(i);
 
       // 只转换小写字母
-      if (code < 97 && code > 122) {
+      if (code < 97 || code > 122) {
         return analyzedResult;
       }
 
@@ -81,7 +127,15 @@ const IME = {
       }
 
       // 词库中拼音用g代替ng      
-      replacedSyllable = tempSyllable.replace('ang', 'ag').replace('eng', 'eg').replace('ing', 'ig').replace('iong', 'iog').replace('ong', 'og').replace('');
+      replacedSyllable = tempSyllable.replace('ng', 'g');
+      if (IME.word.has(replacedSyllable)) {
+        syllable += letter;
+        ++i;
+        continue;
+      }
+
+      // 词库中拼音用ug代替uang      
+      replacedSyllable = tempSyllable.replace('uang', 'ug');
       if (IME.word.has(replacedSyllable)) {
         syllable += letter;
         ++i;
@@ -95,7 +149,13 @@ const IME = {
         continue;
       }
 
-      analyzedResult.syllables.push(syllable);
+      if (syllable) {
+        analyzedResult.syllables.push(syllable);
+      } else {
+        analyzedResult.syllables.push(tempSyllable);
+        ++i;
+      }
+
       syllable = '';
     }
 
@@ -107,41 +167,74 @@ const IME = {
     return analyzedResult;
   }
 
-  function queryWords(syllables) {
-    let result = [];
+  function queryWordsAndWord(input) {
+    let wordList;
+    let wordsList;
+    let wordsFound = false;
+    let wordFound = false;
 
-    for (let i = 0; i < syllables.length - 1; i++) {
-      let combinedSyllable = syllables.slice(0, syllables.length - i).join('');
-      let wordsStr = IME.words.get(combinedSyllable);
-      if (!wordsStr)
-        continue;
-
-      result.concat(wordsStr.split(' '));
+    let wordsStr = IME.words.get(input);
+    if (wordsStr) {
+      wordsList = { syllables: input, words: wordsStr.split(' ') };
+      wordsFound = true;
     }
 
-    let firstSyllable = syllables[0];
-    let wordStr = IME.word.get(firstSyllable);
+    let wordStr = IME.word.get(input);
     if (wordStr) {
-      result.concat(wordStr.split(''));
-      return result;
+      wordList = { syllables: input, words: wordStr.split('') };
+      wordFound = true;
     }
 
-    let zcshIndex = ['zh', 'ch', 'sh'].indexOf(firstSyllable);
-    if (zcshIndex > -1) {
-      result.push(IME.ZCSH[zcshIndex].split(''));
-    } else {
-      let singleKeyIndex = firstSyllable.charCodeAt(0) - 97;
-      result.push(IME.singleKey[singleKeyIndex].split(''));
+    return [wordFound, wordsFound, wordList, wordsList];
+  }
+
+  function queryAllWords(input) {
+    let [wordFound1, wordsFound1, wordList1, wordsList1] = queryWordsAndWord(input);
+
+    let replacedInput = input.replace('uang', 'ug');
+    let [wordFound2, wordsFound2, wordList2, wordsList2] = queryWordsAndWord(replacedInput);
+
+    replacedInput = input.replace('ng', 'g');
+    let [wordFound3, wordsFound3, wordList3, wordsList3] = queryWordsAndWord(replacedInput);
+
+    return [
+      wordFound1 || wordFound2 || wordFound3,
+      wordsFound1 || wordsFound2 || wordsFound3,
+      wordList1 || wordList2 || wordList3,
+      wordsList1 || wordsList2 || wordsList3
+    ];
+  }
+
+  function translate(syllables) {
+    let result = [];
+    let findWord = false;
+
+    for (let i = 0; i < syllables.length; i++) {
+      let combinedSyllable = syllables.slice(0, syllables.length - i).join('');
+      let [wordFound, wordsFound, wordList, wordsList] = queryAllWords(combinedSyllable);
+
+      if (wordsFound) {
+        result.push(wordsList);
+      }
+
+      if (wordFound) {
+        result.push(wordList);
+        findWord = true;
+        break;
+      }
     }
 
-
-    for (let j = 0; j < IME.vowels.length; j++) {
-      let vowel = IME.vowels[j];
-    }
+    return [findWord, result];
   }
 
   function queryFirstLetterWords(input) {
-    return IME.firstLetterWords.get(input);
+    let wordsStr = IME.firstLetterWords.get(input);
+    let result = [];
+    if (wordsStr) {
+      result.push({ syllables: input, words: wordsStr.split(' ') });
+    }
+
+    return result;
   }
 
   init();
