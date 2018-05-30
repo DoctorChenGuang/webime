@@ -9,7 +9,29 @@
 </head>
 
 <body>
-
+  <input id="syllable" type="text" />
+  <button id="btn-convert">convert</button>
 </body>
-<script src="../src/words.js"></script>
+<script src="../src/ime-loader.js"></script>
+<script>
+  (function () {
+    // input.addEventListener('input', () => {
+    //   if (!IME.Loaded) {
+
+    //   }
+    // });
+
+    let input = document.getElementById('syllable');
+    let btn = document.getElementById('btn-convert');
+    btn.addEventListener('click', () => {
+      if (!IME.loaded) {
+        console.warn('IME files not loaded.');
+        return;
+      }
+
+      IME.convert(input.value);
+    });
+  })();
+</script>
+
 </html>
