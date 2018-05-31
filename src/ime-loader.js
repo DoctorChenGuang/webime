@@ -57,9 +57,6 @@ const IME = {
       return invalidConvertResult;
     }
 
-    console.log('analyzedResult', analyzedResult);
-
-    // let result = queryFirstLetterWords(input);
     let result = [];
     let [findWord, fullSyllableWords] = translate(analyzedResult.syllables);
     result = result.concat(fullSyllableWords);
@@ -72,7 +69,18 @@ const IME = {
       return invalidConvertResult;
     }
 
-    console.log('result', result);
+    return result;
+  }
+
+  function toKeyValue(data) {
+    let result = {};
+    data.forEach(item => {
+      if (result[item.syllables]) {
+        result[item.syllables] = result[item.syllables].concat(item.words);
+      } else {
+        result[item.syllables] = item.words;
+      }
+    });
     return result;
   }
 
