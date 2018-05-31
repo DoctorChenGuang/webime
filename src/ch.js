@@ -36,4 +36,4 @@ IME.ZCSH = [
 
 IME.initial = ['b', 'c', 'ch', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n', 'p', 'q', 'r', 's', 'sh', 't', 'w', 'x', 'y', 'z', 'zh'];
 
-IME.vowels = ["a", "ai", "an", "ag", "ao", "e", "ei", "en", "eg", "er", "i", "ia", "ian", "iag", "iao", "ie", "in", "ig", "iog", "iu", "o", "ou", "og", "u", "ua", "uai", "uan", "ug", "ue", "ui", "un", "uo", "v"];
+IME.vowels = ["a", "ai", "an", "ang", "ao", "e", "ei", "en", "eng", "er", "i", "ia", "ian", "iang", "iao", "ie", "in", "ing", "iong", "iu", "o", "ou", "ong", "u", "ua", "uai", "uan", "uang", "ue", "ui", "un", "uo", "v"];

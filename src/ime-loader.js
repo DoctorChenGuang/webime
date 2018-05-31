@@ -27,8 +27,8 @@ const IME = {
 
   async function init() {
     const fileList = [
-      '../src/words.js',
-      '../src/word.js',
+      '../src/words-new.js',
+      '../src/word-new.js',
       '../src/first-letter-word.js',
       '../src/ch.js'
     ];
@@ -59,7 +59,8 @@ const IME = {
 
     console.log('analyzedResult', analyzedResult);
 
-    let result = queryFirstLetterWords(analyzedResult.syllables);
+    // let result = queryFirstLetterWords(input);
+    let result = [];
     let [findWord, fullSyllableWords] = translate(analyzedResult.syllables);
     result = result.concat(fullSyllableWords);
 
@@ -77,7 +78,7 @@ const IME = {
 
   function queryWord(syllable) {
     if (IME.vowels.includes(syllable))
-      return result;
+      return { syllables: syllable, words: syllable };
 
     let result;
     if (syllable.length === 1) {
@@ -126,21 +127,21 @@ const IME = {
         continue;
       }
 
-      // 词库中拼音用g代替ng      
-      replacedSyllable = tempSyllable.replace('ng', 'g');
-      if (IME.word.has(replacedSyllable)) {
-        syllable += letter;
-        ++i;
-        continue;
-      }
+      // // 词库中拼音用g代替ng      
+      // replacedSyllable = tempSyllable.replace('ng', 'g');
+      // if (IME.word.has(replacedSyllable)) {
+      //   syllable += letter;
+      //   ++i;
+      //   continue;
+      // }
 
-      // 词库中拼音用ug代替uang      
-      replacedSyllable = tempSyllable.replace('uang', 'ug');
-      if (IME.word.has(replacedSyllable)) {
-        syllable += letter;
-        ++i;
-        continue;
-      }
+      // // 词库中拼音用ug代替uang      
+      // replacedSyllable = tempSyllable.replace('uang', 'ug');
+      // if (IME.word.has(replacedSyllable)) {
+      //   syllable += letter;
+      //   ++i;
+      //   continue;
+      // }
 
       // 声母继续往下匹配
       if (IME.initial.includes(tempSyllable)) {
@@ -169,16 +170,23 @@ const IME = {
 
   function queryWordsAndWord(input) {
     let wordList;
-    let wordsList;
     let wordsFound = false;
     let wordFound = false;
 
+    // 查询首字母词库
+    let wordsList = queryFirstLetterWords(input);
+
+    // 查询词库
     let wordsStr = IME.words.get(input);
     if (wordsStr) {
-      wordsList = { syllables: input, words: wordsStr.split(' ') };
+      wordsList.words = wordsList.words.concat(wordsStr.split(' '));
+    }
+
+    if (wordsList.words.length > 0) {
       wordsFound = true;
     }
 
+    // 查字
     let wordStr = IME.word.get(input);
     if (wordStr) {
       wordList = { syllables: input, words: wordStr.split('') };
@@ -191,18 +199,13 @@ const IME = {
   function queryAllWords(input) {
     let [wordFound1, wordsFound1, wordList1, wordsList1] = queryWordsAndWord(input);
 
-    let replacedInput = input.replace('uang', 'ug');
-    let [wordFound2, wordsFound2, wordList2, wordsList2] = queryWordsAndWord(replacedInput);
+    // let replacedInput = input.replace('uang', 'ug');
+    // let [wordFound2, wordsFound2, wordList2, wordsList2] = queryWordsAndWord(replacedInput);
 
-    replacedInput = input.replace('ng', 'g');
-    let [wordFound3, wordsFound3, wordList3, wordsList3] = queryWordsAndWord(replacedInput);
+    // replacedInput = input.replace('ng', 'g');
+    // let [wordFound3, wordsFound3, wordList3, wordsList3] = queryWordsAndWord(replacedInput);
 
-    return [
-      wordFound1 || wordFound2 || wordFound3,
-      wordsFound1 || wordsFound2 || wordsFound3,
-      wordList1 || wordList2 || wordList3,
-      wordsList1 || wordsList2 || wordsList3
-    ];
+    return [wordFound1, wordsFound1, wordList1, wordsList1];
   }
 
   function translate(syllables) {
@@ -229,11 +232,10 @@ const IME = {
 
   function queryFirstLetterWords(input) {
     let wordsStr = IME.firstLetterWords.get(input);
-    let result = [];
+    let result = { syllables: input, words: [] };
     if (wordsStr) {
-      result.push({ syllables: input, words: wordsStr.split(' ') });
+      result.words = wordsStr.split(' ');
     }
-
     return result;
   }
 
