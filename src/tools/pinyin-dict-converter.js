@@ -2,8 +2,9 @@ const fs = require('fs');
 const calcSum = require('./calc');
 const initial = ['b', 'c', 'ch', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n', 'p', 'q', 'r', 's', 'sh', 't', 'w', 'x', 'y', 'z', 'zh'];
 const vowels = ["a", "ai", "an", "ang", "ao", "e", "ei", "en", "eng", "er", "i", "ia", "ian", "iang", "iao", "ie", "in", "ing", "iong", "iu", "o", "ou", "ong", "u", "ua", "uai", "uan", "uang", "ue", "ui", "un", "uo", "v"];
+const dist=require('../resource/dict.json');
 
-fs.readFile('./src/pinyin-dict.txt', (err, data) => {
+fs.readFile('./src/resource/pinyin-dict.txt', (err, data) => {
   if (err)
     throw err;
 
@@ -69,6 +70,10 @@ function convert(data) {
     }
 
     let combinedSyllable = syllables.join('');
+
+    if(dist[combinedSyllable])
+      continue;
+
     if (result.has(combinedSyllable)) {
       result.set(combinedSyllable, result.get(combinedSyllable) + ' ' + pinyinParts[0]);
     } else {
@@ -78,6 +83,9 @@ function convert(data) {
     if (lastSyllableInitial) {
       syllables[syllables.length - 1] = lastSyllableInitial;
       combinedSyllable = syllables.join('');
+
+      if(dist[combinedSyllable])
+      continue;
 
       if (result.has(combinedSyllable)) {
         result.set(combinedSyllable, result.get(combinedSyllable) + ' ' + pinyinParts[0]);
