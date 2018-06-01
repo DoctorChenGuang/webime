@@ -48,10 +48,10 @@ const IME = {
     }
 
     const fileList = [
-      'words-new.js',
-      'word-new.js',
-      'first-letter-word.js',
-      'ch.js'
+      'lib/words-new.js',
+      'lib/word-new.js',
+      'lib/first-letter-word.js',
+      'lib/ch.js'
     ];
 
     let loadFileTasks = [];
