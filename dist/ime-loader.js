@@ -59,9 +59,10 @@ const IME = {
       loadFileTasks.push(loadAsync(basePath + file));
     });
 
+    IME.convert = convert;
     await Promise.all(loadFileTasks);
     IME.loaded = true;
-    IME.convert = convert;
+
     Object.freeze(IME);
     console.info('[IME]', 'all files loaded');
   }
