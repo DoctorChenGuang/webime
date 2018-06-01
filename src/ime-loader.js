@@ -25,17 +25,38 @@ const IME = {
     });
   }
 
+  function resolveBasePath(scriptName) {
+    let basePath;
+    for (let i = 0; i < document.scripts.length; i++) {
+      let script = document.scripts[i];
+      if (script.src.includes(scriptName)) {
+        basePath = script.src.replace(scriptName, '');
+        break;
+      }
+    }
+    return basePath;
+  }
+
   async function init() {
+    let imeLoaderScriptName = 'ime-loader.js';
+
+    // ime-loader.js所在目录
+    let basePath = resolveBasePath(imeLoaderScriptName);
+
+    if (!basePath) {
+      throw new Error('[IME] base path of files can\'t found');
+    }
+
     const fileList = [
-      '../src/words-new.js',
-      '../src/word-new.js',
-      '../src/first-letter-word.js',
-      '../src/ch.js'
+      'words-new.js',
+      'word-new.js',
+      'first-letter-word.js',
+      'ch.js'
     ];
 
     let loadFileTasks = [];
     fileList.forEach(file => {
-      loadFileTasks.push(loadAsync(file));
+      loadFileTasks.push(loadAsync(basePath + file));
     });
 
     await Promise.all(loadFileTasks);
@@ -46,6 +67,11 @@ const IME = {
   }
 
   function convert(input) {
+    if (!IME.loaded) {
+      console.warn('[IME]', '词库文件未加载');
+      return;
+    }
+
     if (!input || typeof input !== 'string') {
       console.warn('[IME]', '待转换的字符串为空');
       return;
