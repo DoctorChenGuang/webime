@@ -22,14 +22,17 @@
     // });
 
     let input = document.getElementById('syllable');
+
     let btn = document.getElementById('btn-convert');
+
     btn.addEventListener('click', () => {
       if (!IME.loaded) {
         console.warn('IME files not loaded.');
         return;
       }
-
+      console.log('input.value', input.value);
       console.log('convert result:', IME.convert(input.value));
+      console.log('automated keywords', IME.automatedKeyword(input.value));
     });
   })();
 </script>

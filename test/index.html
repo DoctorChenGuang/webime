@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+    <input type="text" oninput="inputHandler(event)">
+    <div id="container"></div>
+    <script src="../src/lib/automated-keywords.js"></script>
+    <script src="../src/lib/weight.js"></script>
+    <script>
+        let container = document.getElementById('container');
+        let r = {};
+
+        let automatedKeywords = new Map(Keywords);
+        let weight = new Map(Weight);
+
+        function showResult() {
+            for (let rr in r) {
+                container.innerHTML = `<p>${r[rr]}</p>`;
+            }
+        }
+        function inputHandler(event) {
+            let value = event.target.value;
+            let reg = /^[\u4E00-\u9FA5]{1,100}$/g;
+            let result = {};
+            if (reg.test(value)) {
+                result = automatedKeyword(value);
+                result = sort(result);
+                r = result;
+                showResult();
+            }
+        }
+        function automatedKeyword(value) {
+            let strLen = value.length;
+            if (strLen > 12) {
+                value = value.substring(strLen - 12)
+            }
+            let result = test(value);
+            let keywords = result[Object.keys(result)[0]];
+            if (!keywords || !keywords.length) {
+                value = value.substring(1);
+                if (value.length) {
+                    return automatedKeyword(value);
+                }
+            }
+            return result;
+        }
+
+        function test(value) {
+            let result = {};
+            let data = value;
+            let dataLen = data.length;
+            let keywords = data.substring(0, 1);
+
+            let kwArr = automatedKeywords.get(keywords);
+
+            if (!kwArr || !kwArr.length) return {};
+
+            if (dataLen == 1) {
+                result[data] = [];
+                let l = kwArr[0].length;
+                for (let i = 0; i < l; i++) {
+                    result[data].push(kwArr[0][i].substring(1));
+                }
+            }
+            if (dataLen === 2) {
+                result[data] = [];
+                for (let j = 0; j < kwArr.length; j++) {
+
+                    if (j > 0 && kwArr[j]) {
+                        let l = kwArr[j].length;
+                        for (let i = 0; i < l; i++) {
+                            if (kwArr[j][i].substring(0, 2) === data) {
+                                result[data].push(kwArr[j][i].substring(2));
+                            }
+                        }
+                    }
+                }
+
+            }
+            if (dataLen === 3) {
+                result[data] = [];
+                for (let j = 0; j < kwArr.length; j++) {
+                    if (j > 1 && kwArr[j]) {
+                        let l = kwArr[j].length;
+                        for (let i = 0; i < l; i++) {
+                            if (kwArr[j][i].substring(0, 3) === data) {
+                                result[data].push(kwArr[j][i].substring(3));
+                            }
+                        }
+                    }
+                }
+
+            }
+            if (dataLen >= 4) {
+                result[data] = [];
+                for (let j = 0; j < kwArr.length; j++) {
+                    if (j > 0 && kwArr[j]) {
+                        let l = kwArr[j].length;
+                        for (let i = 0; i < l; i++) {
+                            if (kwArr[j][i].substring(0, 2) === data) {
+                                result[data].push(kwArr[j][i].substring(2));
+                            }
+                        }
+                    }
+                }
+
+            }
+            return result;
+        }
+        //按照权值排序
+        function sort(result) {
+            let arr = [];
+            let keywords;
+            for (let r in result) {
+                keywords = r;
+                for (let i = 0; i < result[r].length; i++) {
+                    arr.push(keywords + result[r][i]);
+                }
+            }
+            arr.sort((value1, value2) => {
+                return weight.get(value2) - weight.get(value1);
+            });
+            let sortData = {};
+            sortData[keywords] = arr.map((value) => {
+                return value.split(keywords)[1];
+            });
+            return sortData;
+        }
+    </script>
+</body>
+
+</html>

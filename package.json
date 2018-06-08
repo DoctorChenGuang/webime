@@ -4,6 +4,13 @@
   "version": "0.0.1",
   "license": "MPL-2.0",
   "scripts": {
-    "build": "node build.js"
+    "build": "node build.js",
+    "test": "node src/tools/automated-keywords-converter.js",
+    "b": "node src/automated-keywords.js",
+    "weight": "node src/tools/weight-automated-words-converter.js"
+  },
+  "dependencies": {
+    "fs": "^0.0.1-security",
+    "path": "^0.12.7"
   }
 }
