@@ -1,3 +1,4 @@
+/**生成用于比较词频的库 */
 const fs = require('fs');
 const path = require('path');
 
@@ -18,18 +19,19 @@ function convert(data) {
         let pinyinLine = pinyinLines[i];
 
         let pinyin = pinyinLine.split(' ');
-        let pinyinParts = pinyin[0];//得到的数据
+        let pinyinParts = pinyin[0];
         let weight = pinyin[pinyin.length - 1];
 
-        let strLen = pinyinParts.length;//每个数据的字符长度
-
         //去掉单字
-        if (strLen === 1) continue;
+        if (pinyinParts.length === 1) continue;
 
         let arr = [];
         arr[0] = pinyinParts;
         arr[1] = weight;
         result.push(arr);
     }
-    fs.writeFileSync('src/lib/weight.js', JSON.stringify(result));
+
+    let finalResult = `IME.Weight = new Map(` + JSON.stringify(result) + `)`;
+
+    fs.writeFileSync('src/lib/weight.js', finalResult);
 }

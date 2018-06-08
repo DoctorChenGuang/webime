@@ -11,9 +11,33 @@
 <body>
   <input id="syllable" type="text" />
   <button id="btn-convert">convert</button>
+
+  <!-- 联想词示例 -->
+  <input type="text" oninput="inputHandler(event)">
+  <div id="container"></div>
+
 </body>
 <script src="../src/ime-loader.js"></script>
 <script>
+  let container = document.getElementById('container');
+
+  function inputHandler(event) {
+    let value = event.target.value;
+    let reg = /^[\u4E00-\u9FA5]{1,100}$/g;
+    let result = {};
+    if (reg.test(value)) {
+      result = IME.automatedWord(value);
+      console.log('result', result);
+      showResult(result);
+    }
+  }
+
+  function showResult(result) {
+    for (let value in result) {
+      container.innerHTML = `<p>${result[value]}</p>`;
+    }
+  }
+  
   (function () {
     // input.addEventListener('input', () => {
     //   if (!IME.Loaded) {
@@ -32,8 +56,9 @@
       }
       console.log('input.value', input.value);
       console.log('convert result:', IME.convert(input.value));
-      console.log('automated keywords', IME.automatedKeyword(input.value));
+      console.log('automated keywords', IME.automatedWords(input.value));
     });
+
   })();
 </script>
 

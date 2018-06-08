@@ -5,7 +5,9 @@ const files = [
   'lib/ch.js',
   'lib/first-letter-word.js',
   'lib/word-new.js',
-  'lib/words-new.js'
+  'lib/words-new.js',
+  'lib/automated-words.js',
+  'lib/weight.js'
 ];
 
 files.forEach(file => {

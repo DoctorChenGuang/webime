@@ -51,7 +51,9 @@ const IME = {
       'lib/words-new.js',
       'lib/word-new.js',
       'lib/first-letter-word.js',
-      'lib/ch.js'
+      'lib/ch.js',
+      'lib/automated-words.js',
+      'lib/weight.js'
     ];
 
     let loadFileTasks = [];
@@ -60,6 +62,7 @@ const IME = {
     });
 
     IME.convert = convert;
+    IME.automatedWord = automatedWord;
     await Promise.all(loadFileTasks);
     IME.loaded = true;
 
@@ -274,5 +277,72 @@ const IME = {
     return result;
   }
 
+  //联想词功能,词库中的最长词为12。
+  function automatedWord(value) {
+    let strLen = value.length;
+
+    if (strLen > 12) {
+      value = value.substring(strLen - 12);
+    }
+
+    let result = getWords(value);
+
+    let keywords = result[Object.keys(result)[0]];
+
+    if (!keywords || !keywords.length) {
+      value = value.substring(1);
+      if (value.length) {
+        return automatedWord(value);
+      }
+    }
+    return sort(result);
+  }
+
+  function getWords(value) {
+    let result = {};
+    let data = value;
+    let dataLen = data.length;
+    let keywords = data.substring(0, 1);
+    let kwArr = IME.automatedWords.get(keywords);
+
+    if (!kwArr || !kwArr.length) return {};
+
+    if (dataLen == 1) {
+      result[data] = [];
+      let l = kwArr[0].length;
+      for (let i = 0; i < l; i++) {
+        result[data].push(kwArr[0][i].substring(dataLen));
+      }
+    } else {
+      result[data] = [];
+      for (let j = 0; j < kwArr.length; j++) {
+        if (j >= dataLen - 2 && kwArr[j]) {
+          let l = kwArr[j].length;
+          for (let i = 0; i < l; i++) {
+            if (kwArr[j][i].substring(0, dataLen) === data && kwArr[j][i].substring(dataLen)) {
+              result[data].push(kwArr[j][i].substring(dataLen));
+            }
+          }
+        }
+      }
+    }
+    return result;
+  }
+
+  //按照权值排序
+  function sort(result) {
+    let keywords = Object.keys(result)[0];
+    let arr = result[Object.keys(result)[0]];
+    let sortData = {};
+    if (!keywords) {
+      return {};
+    }
+    arr.sort((value1, value2) => {
+      return IME.Weight.get(keywords + value2) - IME.Weight.get(keywords + value1);
+    });
+
+    sortData[keywords] = arr;
+    return sortData;
+  }
   init();
 })();
