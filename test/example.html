@@ -26,7 +26,7 @@
     let reg = /^[\u4E00-\u9FA5]{1,100}$/g;
     let result = {};
     if (reg.test(value)) {
-      result = IME.automatedWord(value);
+      result = IME.automate(value);
       console.log('result', result);
       showResult(result);
     }
@@ -37,7 +37,7 @@
       container.innerHTML = `<p>${result[value]}</p>`;
     }
   }
-  
+
   (function () {
     // input.addEventListener('input', () => {
     //   if (!IME.Loaded) {
@@ -56,7 +56,6 @@
       }
       console.log('input.value', input.value);
       console.log('convert result:', IME.convert(input.value));
-      console.log('automated keywords', IME.automatedWords(input.value));
     });
 
   })();

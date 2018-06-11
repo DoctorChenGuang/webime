@@ -62,7 +62,7 @@ const IME = {
     });
 
     IME.convert = convert;
-    IME.automatedWord = automatedWord;
+    IME.automate = automate;
     await Promise.all(loadFileTasks);
     IME.loaded = true;
 
@@ -278,7 +278,7 @@ const IME = {
   }
 
   //联想词功能,词库中的最长词为12。
-  function automatedWord(value) {
+  function automate(value) {
     let strLen = value.length;
 
     if (strLen > 12) {
@@ -292,7 +292,7 @@ const IME = {
     if (!keywords || !keywords.length) {
       value = value.substring(1);
       if (value.length) {
-        return automatedWord(value);
+        return automate(value);
       }
     }
     return sort(result);
@@ -338,7 +338,7 @@ const IME = {
       return {};
     }
     arr.sort((value1, value2) => {
-      return IME.Weight.get(keywords + value2) - IME.Weight.get(keywords + value1);
+      return IME.weight.get(keywords + value2) - IME.weight.get(keywords + value1);
     });
 
     sortData[keywords] = arr;

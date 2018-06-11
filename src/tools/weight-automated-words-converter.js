@@ -31,7 +31,7 @@ function convert(data) {
         result.push(arr);
     }
 
-    let finalResult = `IME.Weight = new Map(` + JSON.stringify(result) + `)`;
+    let finalResult = `IME.weight = new Map(` + JSON.stringify(result) + `)`;
 
     fs.writeFileSync('src/lib/weight.js', finalResult);
 }
